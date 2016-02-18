@@ -1,0 +1,14 @@
+.eclipse/
+.gradle/
+.idea/
+.settings/
+bin/
+build/
+.classpath
+.project
+*.eml
+*.idea
+*.iml
+*~
+#*
+

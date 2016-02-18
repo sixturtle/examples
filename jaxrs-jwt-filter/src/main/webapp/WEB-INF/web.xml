@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+       http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+    version="3.0">
+
+    <description>
+       A simple Rest API to demonstrate JWT security
+    </description>
+
+    <context-param>
+       <description>Custom JAX-RS Providers</description>
+       <param-name>resteasy.providers</param-name>
+       <param-value>com.sixturtle.jwt.JWTRequestFilter</param-value>
+    </context-param>
+       <context-param>
+        <param-name>resteasy.role.based.security</param-name>
+        <param-value>true</param-value>
+       </context-param>
+</web-app>
