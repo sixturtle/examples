@@ -1,8 +1,6 @@
-package com.sixturtle.service;
+package com.sixturtle.web.service;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -30,55 +28,43 @@ import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sixturtle.db.RoleRepository;
-import com.sixturtle.db.UserRepository;
+import com.sixturtle.db.PersonRepository;
 import com.sixturtle.exception.InvalidEntityException;
 import com.sixturtle.exception.UnknownEntityException;
-import com.sixturtle.model.RoleEntity;
-import com.sixturtle.model.UserEntity;
+import com.sixturtle.model.PersonEntity;
 import com.sixturtle.web.PaginatedModel;
 import com.sixturtle.web.URLHelper;
 
 /**
- * Represents REST API for {@link UserEntity}.
+ * Represents REST API for {@link PersonEntity}.
  *
  * @author Anurag Sharma
  */
 @Transactional
-@Path("/users")
+@Path("/persons")
 @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-public class UserService {
+public class PersonService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Context
     protected UriInfo uriInfo;
 
     @Inject
-    private UserRepository userRepository;
-
-    @Inject
-    private RoleRepository roleRepository;
+    private PersonRepository repository;
 
     /**
      * @param repository the repository to set
      */
-    public void setUserRepository(UserRepository repository) {
-        this.userRepository = repository;
-    }
-
-    /**
-     * @param roleRepo the role repository to set
-     */
-    public void setRoleRepository(RoleRepository roleRepo) {
-        this.roleRepository = roleRepo;
+    public void setRepository(PersonRepository repository) {
+        this.repository = repository;
     }
 
     /**
      * Represents POST operation to create a new resource.
      *
      * @param resource
-     *            The resource of type {@link UserEntity}
+     *            The resource of type {@link PersonEntity}
      *
      * @return {@link Response} with one of the following codes.
      *         <ul>
@@ -88,28 +74,9 @@ public class UserService {
      *         </ul>
      */
     @POST
-    public Response createResource(@Valid final UserEntity resource) {
+    public Response createResource(@Valid final PersonEntity resource) {
         try {
-            Set<RoleEntity> validRoles = new HashSet<>();
-
-            Set<RoleEntity> roles = resource.getRoles();
-            List<RoleEntity> dbRoles = roleRepository.list(RoleEntity.QUERY_GET_ALL_ROLES, 0, 10);
-            for (RoleEntity role : roles) {
-                RoleEntity found = null;
-                for (RoleEntity dbRole : dbRoles) {
-                    if (role.getName() == dbRole.getName()) {
-                        found = dbRole;
-                        break;
-                    }
-                }
-                if (found == null) {
-                    found = roleRepository.create(role);
-                }
-                validRoles.add(found);
-            }
-            resource.getRoles().clear();
-            resource.getRoles().addAll(validRoles);
-            UserEntity entity = userRepository.create(resource);
+            PersonEntity entity = repository.create(resource);
             log.debug("created entity: {}", entity);
             return Response.created(URLHelper.selfLink(uriInfo, entity.getId().toString(), this.getClass()))
                            .build();
@@ -122,9 +89,9 @@ public class UserService {
      * Represents PUT operation to update an existing resource.
      *
      * @param resourceId
-     *            The id of type {@link Long} for the resource of type {@link UserEntity}
+     *            The id of type {@link Long} for the resource of type {@link PersonEntity}
      * @param resource
-     *            The resource of type {@link UserEntity}
+     *            The resource of type {@link PersonEntity}
      *
      * @return {@link Response} with one of the following codes.
      *         <ul>
@@ -136,9 +103,9 @@ public class UserService {
      */
     @PUT
     @Path("{id}")
-    public Response updateResource(@PathParam("id") final Long resourceId, @Valid final UserEntity resource) {
+    public Response updateResource(@PathParam("id") final Long resourceId, @Valid final PersonEntity resource) {
         try {
-            UserEntity entity = userRepository.update(resourceId, resource);
+            PersonEntity entity = repository.update(resourceId, resource);
             log.debug("updated entity: {}", entity);
             return Response.noContent().build();
         } catch (InvalidEntityException e) {
@@ -152,7 +119,7 @@ public class UserService {
      * Represents DELETE operation to remove an existing resource.
      *
      * @param resourceId
-     *            The id of type {@link Long} for the resource of type {@link UserEntity}
+     *            The id of type {@link Long} for the resource of type {@link PersonEntity}
      *
      * @return {@link Response} with one of the following codes.
      *         <ul>
@@ -165,7 +132,7 @@ public class UserService {
     @Path("{id}")
     public Response deleteResource(@PathParam("id") final Long resourceId) {
         try {
-            userRepository.delete(resourceId);
+            repository.delete(resourceId);
             log.debug("deleted entity: {}", resourceId);
             return Response.noContent().build();
         } catch (UnknownEntityException e) {
@@ -177,7 +144,7 @@ public class UserService {
      * Represents GET operation to retrieve an existing resource.
      *
      * @param resourceId
-     *            The id of type {@link Long} for the resource of type {@link UserEntity}
+     *            The id of type {@link Long} for the resource of type {@link PersonEntity}
      *
      * @return {@link Response} with one of the following codes.
      *         <ul>
@@ -189,7 +156,7 @@ public class UserService {
     @GET
     @Path("{id}")
     public Response findResource(@PathParam("id")final Long resourceId) {
-        UserEntity entity = userRepository.find(resourceId);
+        PersonEntity entity = repository.find(resourceId);
         if (entity != null) {
             return Response.ok().entity(entity).build();
         } else {
@@ -201,7 +168,7 @@ public class UserService {
      * Represents HEAD operation to retrieve an existing resource.
      *
      * @param resourceId
-     *            The id of type {@link Long} for the resource of type {@link UserEntity}
+     *            The id of type {@link Long} for the resource of type {@link PersonEntity}
      *
      * @return {@link Response} with one of the following codes.
      *         <ul>
@@ -213,7 +180,7 @@ public class UserService {
     @HEAD
     @Path("{id}")
     public Response checkResource(@PathParam("id")final Long resourceId) {
-        UserEntity entity = userRepository.find(resourceId);
+        PersonEntity entity = repository.find(resourceId);
         if (entity != null) {
         return Response.ok(URLHelper.selfLink(uriInfo, entity.getId().toString(), this.getClass()))
                        .status(Status.NO_CONTENT)
@@ -224,7 +191,7 @@ public class UserService {
     }
 
     /**
-     * Represents GET operation to retrieve a list of resources of type UserEntity.
+     * Represents GET operation to retrieve a list of resources of type PersonEntity.
      *
      * @param offset
      *            The start index of the list
@@ -242,8 +209,8 @@ public class UserService {
             @QueryParam(URLHelper.PARAM_OFFSET) @DefaultValue(URLHelper.DEFAULT_OFFSET)int offset,
             @QueryParam(URLHelper.PARAM_LIMIT)  @DefaultValue(URLHelper.DEFAULT_LIMIT) int limit) {
 
-        List<UserEntity> data = userRepository.list(UserEntity.QUERY_FIND_ALL, offset, limit);
-        Long count = userRepository.count(UserEntity.QUERY_COUNT_ALL);
+        List<PersonEntity> data = repository.list(PersonEntity.QUERY_FIND_ALL, offset, limit);
+        Long count = repository.count(PersonEntity.QUERY_COUNT_ALL);
 
         ResponseBuilder builder = Response.ok().entity(data);
         URLHelper.addNavHeaders(builder, uriInfo, new PaginatedModel<>(offset, limit, count, data));

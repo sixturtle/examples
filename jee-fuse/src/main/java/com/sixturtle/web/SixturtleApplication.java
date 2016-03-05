@@ -7,8 +7,8 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import com.sixturtle.service.PersonService;
-import com.sixturtle.service.UserService;
+import com.sixturtle.web.service.PersonService;
+import com.sixturtle.web.service.UserService;
 
 
 /**

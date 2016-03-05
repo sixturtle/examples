@@ -1,4 +1,4 @@
-package com.sixturtle.service;
+package com.sixturtle.web.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

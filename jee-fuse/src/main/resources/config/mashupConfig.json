@@ -1,0 +1,5 @@
+{
+    "baseUrl": "http://localhost:8089",
+    "apiPath": "/emailvalidator/validateEmail",
+    "authcode": "*********"
+}

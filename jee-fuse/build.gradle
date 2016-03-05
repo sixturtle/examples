@@ -56,6 +56,9 @@ configurations {
 }
 
 configurations.all {
+    // To examine dependencies, comment failOnVersionConflict() and run following commands to see conflicts
+    // $ gradle dependencies --configuration testRuntime
+    // $ gradle dependencyInsight --configuration testRuntime --dependency "org.apache.httpcomponents"
     resolutionStrategy {
         // fail eagerly on version conflict (includes transitive dependencies)
         // e.g. multiple different versions of the same dependency (group and name are equal)
@@ -124,13 +127,23 @@ dependencies {
     }
     testCompile ("org.jboss.resteasy:resteasy-jaxrs:$resteasyVersion") {
         exclude group: "commons-io", module: "commons-io"
+        exclude group: "org.apache.httpcomponents"
     }
     testCompile ("org.jboss.resteasy:resteasy-undertow:$resteasyVersion") {
         //exclude group: "commons-io", module: "commons-io"
+        exclude group: "org.apache.httpcomponents"
     }
     testCompile ("org.dbunit:dbunit:$dbunitVersion") {
         exclude group: "org.slf4j"
         exclude group: "junit"
+    }
+    // Remove the duplicate dependencies that wiremock pulls in
+    testCompile ("com.github.tomakehurst:wiremock:$wiremockVersion") {
+        exclude group: 'com.fasterxml.jackson.core'
+        exclude group: 'org.slf4j'
+        exclude group: 'net.minidev'
+        exclude group: 'commons-io'
+        exclude group: 'commons-logging'
     }
 }
 
