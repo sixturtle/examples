@@ -1,0 +1,14 @@
+{
+    "person": {
+        "firstName": "First",
+        "lastName": "Last",
+        "email": "first.last@sixturtle.com",
+        "phone": "404-111-2222"
+    },
+    "roles": [
+        {
+            "name": "User",
+            "description": "User Role"
+        }
+    ]
+}

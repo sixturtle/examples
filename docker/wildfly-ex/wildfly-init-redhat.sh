@@ -13,6 +13,7 @@ fi
 # Deploy artifacts and overlay customization from a mapped distribution folder
 APP_DIST_DIR=/opt/dist/wildfly
 if [ -d $APP_DIST_DIR ] && [ "$(ls -A $APP_DIST_DIR)" ]; then
+    rm $JBOSS_HOME/standalone/deployments/*
     cp -r $APP_DIST_DIR/* $JBOSS_HOME
 fi
 

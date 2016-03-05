@@ -1,6 +1,6 @@
 # Base image + wildfly
 
-FROM sixturtle/examples/base:latest
+FROM sixturtle/base:latest
 MAINTAINER Anurag Sharma <anurag.sharma@sixturtle.com>
 
 # Create a user and group used to launch processes

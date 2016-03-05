@@ -1,0 +1,176 @@
+// Project definition
+description = 'JEE Fuse Application'
+group = "sixturtle"
+version = 1.0
+
+
+// Standard plugins
+apply plugin: 'war'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'jacoco'
+apply plugin: 'checkstyle'
+
+
+// project properties appended to gradle ext namespace
+ext {
+    // Provided libs
+    jeeVersion              = "7.0"
+
+    slf4jVersion            = "1.7.2"
+    log4jVersion            = "1.2.17"
+
+    jacksonProvidersVersion = "2.4.1"
+    resteasyVersion         = "3.0.9.Final"
+
+    hibernateVersion        = "4.3.7.Final"
+    validatorVersion        = "5.1.2.Final"
+    commonsLangVersion      = "3.4"
+    beanutilsVersion        = "1.9.2"
+
+    // jUnit libs
+    junitVersion            = "4.11"
+    hamcrestVersion         = "1.3"
+    mockitoVersion          = "1.9.5"
+
+    wiremockVersion         = "1.52"
+    undertowVersion         = "1.2.9.Final"
+
+    hsqldbVersion           = "2.3.2"
+    dbunitVersion           = "2.4.9"
+
+    // REST Documentation
+    swaggerVersion          = "1.3.12"
+    swaggerDocletVersion    = "1.1.0"
+}
+
+// repositories locations
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+// define a custom scope for dependencies
+configurations {
+    provided
+    swagger
+}
+
+configurations.all {
+    resolutionStrategy {
+        // fail eagerly on version conflict (includes transitive dependencies)
+        // e.g. multiple different versions of the same dependency (group and name are equal)
+        failOnVersionConflict()
+    }
+}
+
+// configure custom scope of dependencies on the sourceSets
+sourceSets {
+    main { compileClasspath += configurations.provided }
+}
+eclipse {
+    classpath {
+        plusConfigurations += [ configurations.provided ]
+    }
+}
+
+// checkstyle configuration
+checkstyle {
+    ignoreFailures = false
+    configFile = new File(rootDir, "etc/checkstyle/checkstyle.xml")
+    configProperties.checkstyleConfigDir = configFile.parentFile
+}
+
+// define standard dependencies common to all sub projects
+dependencies {
+    // required for compilation and also packaged
+    compile (
+        ["org.apache.commons:commons-lang3:$commonsLangVersion"],
+        ["commons-beanutils:commons-beanutils:$beanutilsVersion"],
+    )
+
+    // required for compilation but not packaged
+    providedCompile (
+        ["javax:javaee-api:$jeeVersion"],
+        ["org.slf4j:slf4j-api:$slf4jVersion"],
+        ["com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$jacksonProvidersVersion"],
+    )
+
+    // required only for generating swagger compliant REST api doc
+    // https://github.com/teamcarma/swagger-jaxrs-doclet
+    swagger (
+        ["javax:javaee-api:$jeeVersion"],
+        ["com.carma:swagger-doclet:$swaggerDocletVersion"]
+    )
+
+    // required only for test
+    testCompile (
+        ["junit:junit:$junitVersion"],
+        ["org.slf4j:slf4j-log4j12:$slf4jVersion"],
+        ["org.hamcrest:hamcrest-library:$hamcrestVersion"],
+        ["com.fasterxml.jackson.core:jackson-databind:$jacksonProvidersVersion"],
+        ["org.hibernate:hibernate-validator:$validatorVersion"],
+        ["org.hibernate:hibernate-entitymanager:$hibernateVersion"],
+        ["org.hsqldb:hsqldb:$hsqldbVersion"]
+    )
+    // using higher version from hamcrest-library and junit
+    testCompile ("org.mockito:mockito-core:$mockitoVersion") {
+        exclude group: "org.hamcrest", module: "hamcrest-core"
+    }
+    testCompile ("io.undertow:undertow-servlet:$undertowVersion") {
+        exclude group: "org.jboss.logging", module: "jboss-logging"
+    }
+    testCompile ("org.jboss.resteasy:resteasy-jackson2-provider:$resteasyVersion") {
+        exclude group: "com.fasterxml.jackson.core", module: "jackson-annotations"
+    }
+    testCompile ("org.jboss.resteasy:resteasy-jaxrs:$resteasyVersion") {
+        exclude group: "commons-io", module: "commons-io"
+    }
+    testCompile ("org.jboss.resteasy:resteasy-undertow:$resteasyVersion") {
+        //exclude group: "commons-io", module: "commons-io"
+    }
+    testCompile ("org.dbunit:dbunit:$dbunitVersion") {
+        exclude group: "org.slf4j"
+        exclude group: "junit"
+    }
+}
+
+// Generates swagger compliant REST api documentation
+// https://github.com/teamcarma/swagger-jaxrs-doclet
+task swagger(type: Javadoc) {
+    source = sourceSets.main.allJava
+    destinationDir = reporting.file("swagger")
+    options.classpath = configurations.compile.files.asType(List)  // compile path
+    options.docletpath = configurations.swagger.files.asType(List) // swagger path
+    options.doclet = "com.carma.swagger.doclet.ServiceDoclet"
+    options.addStringOption("apiVersion", currentVersion)
+    options.addStringOption("docBasePath", "/sixturtle/docs")
+    options.addStringOption("apiBasePath", "/sixturtle/api")
+    options.addBooleanOption("skipUiFiles", false)
+}
+
+// Append swagger api docs into war
+war {
+    it.dependsOn swagger
+    from ("${reportsDir}/swagger", {into 'docs'})
+}
+
+task copyConfig(type: Copy) {
+    description 'Copy Wildfly Configuration to JBOSS_HOME'
+
+    def jbossHome = System.getenv()['JBOSS_HOME']
+    from ('etc/wildfly')
+    into jbossHome
+}
+
+// Deploy the WAR to a local JBOSS in standalone mode
+task deploy(type: Copy) {
+    description 'Deploy the WAR to a local JBOSS in standalone mode'
+
+    def jbossHome = System.getenv()['JBOSS_HOME']
+    def destDir =  jbossHome + '/standalone/deployments/'
+    from tasks.withType(War)
+    from tasks.withType(Ear)
+    into destDir
+}
+deploy.onlyIf {System.getenv()['JBOSS_HOME']}
+deploy.dependsOn copyConfig

@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <person id="1" version="1" first_name="John" last_name="Doe" email="john.doe@sixturtle.com" phone="404-111-2222" />
+    <person id="2" version="1" first_name="Mary" last_name="Doe" email="may.doe@sixturtle.com" phone="404-111-2222" />
+
+    <user id="1" version="1" person_id="1" active="TRUE" />
+    <user id="2" version="1" person_id="2" active="TRUE" />
+
+    <role id="1" version="1" role_name="ADMIN" role_description="Administrator"/>
+    <role id="2" version="1" role_name="USER" role_description="User"/>
+
+    <user_role user_id="1" role_id="1" />
+    <user_role user_id="2" role_id="2" />
+</dataset>

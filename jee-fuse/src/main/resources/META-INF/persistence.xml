@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence
+        xmlns="http://java.sun.com/xml/ns/persistence"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+        http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+        version="2.0">
+
+    <persistence-unit name="sixturtlePersistentUnit" transaction-type="JTA">
+        <description>Application Persistent Unit</description>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <jta-data-source>java:jboss/datasources/ExampleDS</jta-data-source>
+
+        <class>com.sixturtle.model.Address</class>
+        <class>com.sixturtle.model.PersonEntity</class>
+        <class>com.sixturtle.model.RoleEntity</class>
+        <class>com.sixturtle.model.UserEntity</class>
+
+        <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+        <validation-mode>CALLBACK</validation-mode>
+
+        <properties>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="false" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <property name="hibernate.id.new_generator_mappings" value="false"/>
+
+            <property name="hibernate.cache.use_second_level_cache" value="true"/>
+            <property name="hibernate.cache.use_query_cache" value="true"/>
+
+            <property name="hibernate.cache.region.factory_class"
+                      value="org.jboss.as.jpa.hibernate4.infinispan.InfinispanRegionFactory" />
+            <property name="hibernate.cache.infinispan.cachemanager"
+                      value="java:jboss/infinispan/container/hibernate" />
+        </properties>
+    </persistence-unit>
+
+</persistence>

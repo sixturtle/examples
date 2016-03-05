@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration debug="false"
+    xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+    <appender name="consoleAppender" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{HH:mm:ss} %5p %c{1} - %m%n" />
+        </layout>
+    </appender>
+
+    <appender name="fileAppender" class="org.apache.log4j.RollingFileAppender">
+        <param name="append" value="false" />
+        <param name="file" value="build/junit.log" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ABSOLUTE} %-5p [%c{1}] %m%n" />
+        </layout>
+    </appender>
+
+    <category name="com.sixturtle">
+        <priority value="DEBUG" />
+    </category>
+
+    <category name="io.undertow">
+        <priority value="WARN" />
+    </category>
+
+    <category name="org.hibernate.tool.hbm2ddl">
+        <priority value="FATAL" />
+    </category>
+    <category name="org.hibernate.engine.jdbc.connections.internal">
+        <priority value="FATAL" />
+    </category>
+    <category name="org.hibernate">
+        <priority value="OFF" />
+    </category>
+
+    <category name="org.dbunit">
+        <priority value="ERROR" />
+    </category>
+
+    <category name="org.jboss.resteasy">
+        <priority value="WARN" />
+    </category>
+
+    <category name="org.apache.http.wire">
+        <priority value="DEBUG" />
+    </category>
+
+    <root>
+        <level value="ERROR" />
+        <appender-ref ref="consoleAppender" />
+        <appender-ref ref="fileAppender" />
+    </root>
+
+</log4j:configuration>
