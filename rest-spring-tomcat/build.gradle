@@ -1,0 +1,112 @@
+// Project definition
+description = 'Spring MVC for REST Api'
+group = "sixturtle"
+version = 1.0
+
+
+// Standard plugins
+apply plugin: 'war'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'jacoco'
+apply plugin: 'checkstyle'
+
+
+// project properties appended to gradle ext namespace
+ext {
+    // Provided libs
+    servletVersion			= '3.1.0'
+    springVersion           = '4.2.5.RELEASE'
+    jacksonVersion          = '2.5.3'
+    jaxbVersion             = '2.2.11'
+
+    hibernateVersion        = '5.1.0.Final'
+    jpa21Version            = '1.0.0.Final'
+    hsqldbVersion           = '2.3.2'
+
+    slf4jVersion            = "1.7.19"
+    log4jVersion            = "1.2.17"
+
+    // jUnit libs
+    junitVersion            = "4.11"
+}
+
+// Java compatibility
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+// repositories locations
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+// define a custom scope for dependencies
+configurations {
+    provided
+}
+
+configurations.all {
+    // To examine dependencies, comment failOnVersionConflict() and run following commands to see conflicts
+    // $ gradle dependencies --configuration testRuntime
+    // $ gradle dependencyInsight --configuration testRuntime --dependency "org.apache.httpcomponents"
+    resolutionStrategy {
+        // fail eagerly on version conflict (includes transitive dependencies)
+        // e.g. multiple different versions of the same dependency (group and name are equal)
+        failOnVersionConflict()
+    }
+}
+
+// configure custom scope of dependencies on the sourceSets
+sourceSets {
+    main { compileClasspath += configurations.provided }
+}
+eclipse {
+    classpath {
+        plusConfigurations += [ configurations.provided ]
+    }
+}
+
+// checkstyle configuration
+checkstyle {
+    ignoreFailures = false
+    configFile = new File(rootDir, "etc/checkstyle/checkstyle.xml")
+    configProperties.checkstyleConfigDir = configFile.parentFile
+}
+
+// define standard dependencies common to all sub projects
+dependencies {
+    // required for compilation and also packaged
+    compile (
+        ["org.springframework:spring-webmvc:$springVersion"],
+        ["org.springframework.data:spring-data-jpa:1.10.1.RELEASE"],
+
+        ["com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"],
+        ["javax.xml.bind:jaxb-api:$jaxbVersion"],
+        ["com.sun.xml.bind:jaxb-impl:$jaxbVersion"],
+        ["com.sun.xml.bind:jaxb-core:$jaxbVersion"],
+
+        ["org.slf4j:slf4j-api:$slf4jVersion"],
+        ["org.slf4j:slf4j-log4j12:$slf4jVersion"],
+
+        ["org.hibernate:hibernate-entitymanager:$hibernateVersion"],
+        ["org.hibernate.javax.persistence:hibernate-jpa-2.1-api:$jpa21Version"],
+
+        ["org.hsqldb:hsqldb:$hsqldbVersion"],
+        ["net.sourceforge.jtds:jtds:1.3.1"],
+    )
+
+    // required for compilation but not packaged
+    providedCompile (
+    ["javax.servlet:javax.servlet-api:$servletVersion"]
+    )
+
+    // required only for test
+    testCompile (
+        ["junit:junit:$junitVersion"],
+    )
+}
+
+// customize war package
+war {
+  archiveName "sixturtle.war"
+}
