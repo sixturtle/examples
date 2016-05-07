@@ -1,0 +1,26 @@
+allprojects {
+    group   = 'sixturtle'
+    version = '1.0'
+}
+
+description = 'Example Application'
+
+// configure sub projects
+subprojects {
+
+    apply plugin: 'eclipse'
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    apply plugin: 'maven'
+    apply plugin: 'checkstyle'
+
+    // all sub projects must use same java version
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    
+    // repositories locations
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
