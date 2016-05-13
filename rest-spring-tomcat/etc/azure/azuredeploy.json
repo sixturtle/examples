@@ -103,8 +103,8 @@
                     "[concat('Microsoft.Web/sites/', parameters('webSiteName'))]"
                   ],
                   "properties": {
-                    "WEBSITE_NODE_DEFAULT_VERSION": "4.2.3",
-                    "config.dir": "d:\\home\\site\\wwwroot"
+                     "WEBSITE_NODE_DEFAULT_VERSION": "4.2.3",
+                     "config.dir": "d:\\home\\site\\wwwroot"
                   }
                 }
             ]
